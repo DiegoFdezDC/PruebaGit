@@ -1,0 +1,32 @@
+P1.2
+import socket
+
+# Configuración del servidor
+HOST = '127.0.0.1'  # Dirección local
+PORT = 8080         # Puerto de escucha
+
+# Crear el socket del servidor
+server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+server_socket.bind((HOST, PORT))
+server_socket.listen(5)  # Escucha hasta 5 conexiones en cola
+
+print(f"Servidor iniciado en {HOST}:{PORT}")
+
+while True:
+    client_socket, client_address = server_socket.accept()  # Acepta una conexión
+    print(f"Conexión recibida de {client_address}")
+
+    request = client_socket.recv(1024).decode()  # Recibe la solicitud HTTP
+    print(f"Solicitud recibida:\n{request}")
+
+    # Construir la respuesta HTTP con index.html
+    response = (
+        "HTTP/1.1 200 OK\r\n"
+        "Content-Type: text/html\r\n"
+        "Connection: close\r\n\r\n"
+        "<h1>Servidor funcionando</h1><p>Esta es una prueba.</p>"
+    )
+
+    client_socket.sendall(response.encode())  # Enviar la respuesta
+    client_socket.close()  # Cerrar conexión con el cliente
