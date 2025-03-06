@@ -1,50 +1,50 @@
-P1.2
+#P1.2
 import socket
 import os
 
 # Configuración del servidor
 HOST = '127.0.0.1'  
-PORT = 9999  # Puedes usar el puerto que quieras
+PORT = 9999  # Puedes usar el puerto que quieras el 8080 es de web
 
 # Crear el socket del servidor
-server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-server_socket.bind((HOST, PORT))
-server_socket.listen(5)
+ssocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+ssocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+ssocket.bind((HOST, PORT))
+ssocket.listen(5)
 
 print(f"Servidor iniciado en {HOST}:{PORT}")
 
 while True:
-    client_socket, client_address = server_socket.accept()  # Acepta una conexión
-    print(f"Conexión recibida de {client_address}")
+    csocket, dircliente = ssocket.accept()  # Acepta una conexión
+    print(f"Conexión recibida de {dircliente}")
 
-    request = client_socket.recv(1024).decode()  # Recibe la solicitud HTTP
-    print(f"Solicitud recibida:\n{request}")
+    mensaje = csocket.recv(1024).decode()  # Recibe la solicitud HTTP
+    print(f"Solicitud recibida:\n{archivo}")
 
     # Obtener la primera línea de la solicitud HTTP
-    request_line = request.split("\n")[0]
-    print(f"Petición: {request_line}")
+    linea = mensaje.split("\n")[0] #divides el texto en las lineas (py añade nos /r/n y split los detecta para hacer la div)
+    print(f"Petición: {linea}")
 
     # Extraer el archivo solicitado
-    file_requested = request_line.split(" ")[1]
+    archivo = linea.split(" ")[1] #divide las lineas en funcion de los espacios, misma forma que el pl
     
-    if file_requested == "/":
-        file_requested = "/index.html"
+    if archivo == "/":
+        archivo = "/index.html" #aqi busca la direccion del html
 
-    file_path = "." + file_requested  # Ruta del archivo solicitado
+    direccionruta = "." + archivo  # Ruta del archivo solicitado
 
     # Verificar si el archivo existe
-    if os.path.exists(file_path):
-        with open(file_path, "rb") as f:
-            content = f.read()
+    if os.path.exists(direccionruta): #si no existe no se ejecuta 
+        with open(direccionruta, "rb") as f:
+            contenido = f.read()
         
         # Respuesta HTTP con el contenido del archivo
         response = (
             "HTTP/1.1 200 OK\r\n"
             "Content-Type: text/html\r\n"
-            f"Content-Length: {len(content)}\r\n"
+            f"Content-Length: {len(contenido)}\r\n"
             "Connection: close\r\n\r\n"
-        ).encode() + content
+        ).encode() + contenido
     else:
         # Responder con un 404 si el archivo no existe
         response = (
@@ -54,6 +54,5 @@ while True:
             "<h1>404 Not Found</h1><p>El archivo solicitado no existe.</p>".encode()
         )
 
-    client_socket.sendall(response)  # Enviar la respuesta
-    client_socket.close()  # Cerrar conexión con el cliente
-
+    csocket.sendall(response)  # Enviar la respuesta
+    csocket.close()  # Cerrar conexión con el cliente
