@@ -17,6 +17,7 @@ socket_client.connect((IP, PUERTO))
 # Enviamos el identificador
 socket_client.send(ID.encode())
 
+name = input("[APP]¿Cual es tu nombre?\n")
 socket_client.send(name.encode())
 repe = socket_client.recv(1024).decode()
 if repe != "0":
@@ -24,7 +25,7 @@ if repe != "0":
 
 
 
-name = input("[APP]¿Cual es tu nombre?\n")
+
 print("[APP] nombre registrado con exito, escribe help para ver mas comandos")
 print(f"\n[APP] BIen venido al chat grupal {name} \n")
 
@@ -63,7 +64,7 @@ while True:
                 print("[APP] Archivo guardado con exito")
                 print("==================================")
                 
-            elif msg == "help\n"
+            elif msg == "help\n":
                 print("[APP] Escribe exit para desconectarte")
                 print("[APP] Escribe save para guardar la conversacion")
                 
