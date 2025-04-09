@@ -35,7 +35,7 @@ while True:
             ID = client_socket.recv(1024).decode()
             # agregamos el id a la colección de identificaciones
             ID_collection.append(ID)
-            print(f"\n** {ID} conectado desde {client_addr}")
+            print(f"\nEL usuario con id: {ID} se conecto desde {client_addr}")
 
         # Ahora vemos si hay clientes intentando mandar mensajes
         else:
