@@ -18,7 +18,8 @@ print(f"\nServidor escuchando en {IP}:{PORT}...")
 
 sockets = [server_socket]
 ID_collection = [IDS]  # para guardar los ID
-
+repetido = 0
+list = ["server"] #guarda los datos del nombre para que no haya repes
 # Bucle principal
 while True:
     listo_leer, _, _ = select.select(sockets, [], [])  # uso del select para ir usando los que estén disponibles
@@ -33,9 +34,20 @@ while True:
             sockets.append(client_socket)
 
             ID = client_socket.recv(1024).decode()
+            
             # agregamos el id a la colección de identificaciones
             ID_collection.append(ID)
-            print(f"\nEL usuario con id: {ID} se conecto desde {client_addr}")
+
+            name = client_socket.recv(1024).decode()
+            while True:
+                if name not in list:
+                    client_socket.send(str(repetido).encode())
+                    break
+                repetido = repetido + 1
+                name = name + str(repetido)
+                
+            list.append(name)
+            print(f"\nel usuario con {ID} se conecto desde {client_addr}")
 
         # Ahora vemos si hay clientes intentando mandar mensajes
         else:
@@ -50,6 +62,7 @@ while True:
                     # es mejor usar remove pq el pop tendríamos que recorrer las listas en busca de 1 igual
                     sockets.pop(indice)
                     ID_collection.pop(indice)
+                    list.pop(indice)
                     sock.close()
                     
 
