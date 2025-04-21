@@ -1,68 +1,76 @@
 import socket
 import select
 import sys
-import random
 
-
-IP = f"127.0.0.{str(random.randint(1,200))}"
+# Por comodidad pedimos que introduzca la IP 
+IP = input("Introduzca la ip a la que desea conectarse\n")
 PORT = 9999
-
-ID = str(random.randint(1, 5000))
+conver = []
 
 # Creamos el socket TCP y nos conectamos al servidor
 socket_client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 socket_client.connect((IP, PORT))
 
-# Enviamos el identificador
-socket_client.send(ID.encode())
-conver = []
+name = input("[APP] ¿Cuál es tu nombre?\n")
 
+# Enviamos el nombre
+socket_client.send(name.encode())
 
-name = input("[APP] ¿Cual es tu nombre?\n")
-print("[APP] Escribe help para ver mas comandos")
-print(f"\n[APP] Bienvenido al chat grupal {name} \n")
+print("[APP] Escribe 'help' para ver más comandos")
+print(f"\n[APP] Bienvenido al chat grupal, {name}\n")
 
 while True:
 
     listo_leer, _, _ = select.select([sys.stdin, socket_client], [], [])
 
     for sock in listo_leer:
-        #igual que en el servidor
         if sock == socket_client:
             # Mensaje recibido del servidor
             response = socket_client.recv(1024).decode()
             if not response:
-                
                 # Si el mensaje está vacío, el servidor cerró la conexión
                 print("\n[APP] El servidor ha cerrado la conexión.")
                 socket_client.close()
                 sys.exit()
             print(response)
             conver.append(response)
-            
+
         else:
             # El usuario ha escrito algo y pulsado ENTER
-            msg = sys.stdin.readline()  # como input(), pero no bloquea
-            if msg == "exit\n":
-                print("\n[APP] Saliendo de la aplicacion... ")
+            msg = sys.stdin.readline().strip()  # como input(), pero no bloquea
+            
+            if msg == "exit":
+                print("\n[APP] Saliendo de la aplicación... ")
                 socket_client.close()
                 sys.exit()
-                
-            elif msg == "save\n":
-                with open(f"Chat_de_{name}.txt","w") as archivo:
-                    archivo.write(f"Conversacion de {name}\n")
-                    for coms in conver:#Resumen
-                        archivo.write(f"{coms}")
-                    
-                print("[APP] Archivo guardado con exito")
+
+            elif msg == "save":
+                with open(f"Chat_de_{name}.txt", "w") as archivo:
+                    archivo.write(f"Conversación de {name}\n")
+                    for coms in conver:
+                        archivo.write(f"{coms}\n")
+                print("[APP] Archivo guardado con éxito")
                 print("==================================")
-            elif msg == "help\n":
-                print("[APP] Escribe exit para desconectarte")
-                print("[APP] Escribe save para guardar la conversacion")
-                
-			
-            message = "[" + name + "]:" +msg
-            conver.append(message)
+
+            elif msg == "help":
+                print("[APP] Escribe 'exit' para desconectarte")
+                print("[APP] Escribe 'save' para guardar la conversación")
+                print("[APP] Usa '/tell <destinatario> <mensaje>' para enviar un mensaje privado")
             
-            # Enviamos el mensaje al servidor
-            socket_client.send(message.encode())
+            elif msg.startswith("/tell"):
+                # Formato de mensajes privados: /tell <destinatario> <mensaje>
+                priv = msg.split(" ", 2)  # Dividimos en tres partes: comando, destinatario y mensaje
+                if len(priv) == 3:
+                    destinatario = priv[1]
+                    mensaje_privado = priv[2]
+                    # Enviamos al servidor en formato: destinatario mensaje
+                    socket_client.send(f"{destinatario} {mensaje_privado}".encode())
+                else:
+                    print("[APP] Formato incorrecto. Usa: /tell <destinatario> <mensaje>")
+            
+            else:
+                # Mensaje normal al chat grupal
+                message = f"[{name}]: {msg}"
+                conver.append(message)
+                # Enviamos el mensaje al servidor
+                socket_client.send(message.encode())
