@@ -13,7 +13,7 @@ server_socket.listen()
 print(f"\n[SERVER] Servidor escuchando en {IP}:{PORT}...")
 
 sockets = [server_socket]
-name_collection = []  # Guardará los nombres
+name_collection = ["Server"]  # Guardará los nombres
 
 # Bucle principal
 while True:
@@ -50,10 +50,15 @@ while True:
                         if cliente != server_socket and cliente != sock:
                             cliente.send(f"\n{response}".encode())
                 # Si no empieza con [ es que es un mensaje privado
-                else:
-                    busca = response.split(" ", 2)  # Ajustamos para dividir correctamente
+                elif response.startswith("/tell"):
+					
+                    busca = response.split(" ")
+                    comando =busca [0]
                     destinatario = busca[1]
                     mensaje_privado = busca[2]
+                    print(f"{busca[0]}")
+                    print(f"{busca[1]}")
+                    print(f"{busca[2]}")
 
                     print(f"Buscando a {destinatario}...")
 
