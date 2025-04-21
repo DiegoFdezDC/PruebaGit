@@ -4,6 +4,8 @@ import sys
 
 # Por comodidad pedimos que introduzca la IP 
 IP = input("Introduzca la ip a la que desea conectarse\n")
+if IP == "0":
+	IP = "127.0.0.1"
 PORT = 9999
 conver = []
 
@@ -31,7 +33,7 @@ while True:
                 # Si el mensaje está vacío, el servidor cerró la conexión
                 print("\n[APP] El servidor ha cerrado la conexión.")
                 socket_client.close()
-                sys.exit()
+                exit()
             print(response)
             conver.append(response)
 
@@ -42,7 +44,7 @@ while True:
             if msg == "exit":
                 print("\n[APP] Saliendo de la aplicación... ")
                 socket_client.close()
-                sys.exit()
+                exit()
 
             elif msg == "save":
                 with open(f"Chat_de_{name}.txt", "w") as archivo:
@@ -64,7 +66,7 @@ while True:
                     destinatario = priv[1]
                     mensaje_privado = priv[2]
                     # Enviamos al servidor en formato: destinatario mensaje
-                    socket_client.send(f"{destinatario} {mensaje_privado}".encode())
+                    socket_client.send(f"/tell {destinatario} {mensaje_privado}".encode())
                 else:
                     print("[APP] Formato incorrecto. Usa: /tell <destinatario> <mensaje>")
             
